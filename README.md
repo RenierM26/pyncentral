@@ -26,10 +26,10 @@ Ncentral genral refereneces:
 What is implemented:
 
 1) You can pause/enable monitoring of spesific items ---- Yes, that means a website or service on a server for example.
-2) You list customers
-3) You can list devices per customer
-4) You can list tasks per device
+2) You list customers.
+3) You can list devices per customer.
+4) You can list tasks per device.
+5) Get active issue list per customer.
+6) Get device info.
 
-To do:
-a) The info is in python dict format which is difficult to read. Need to format this a little bit. 
-b) The issuelist function is built. Just need to add arguments entrypoint.
+Output: All in Json format ;-)
