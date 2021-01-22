@@ -29,6 +29,7 @@ def main():
     #Spesific CustomerID related functions
     subparsers_customerid_action = parser_customerid.add_subparsers(dest='customerid_action')
     parser_customerid_action = subparsers_customerid_action.add_parser('list', help='List devices under customer')
+    parser_customerid_action = subparsers_customerid_action.add_parser('activeissue', help='List active issues under customer')
 
     #Device related functions
     parser_deviceid = subparsers.add_parser('device', help='device related actions')
@@ -74,47 +75,48 @@ def main():
 
         if args.all_customer_action == 'list':
             if not args.filter:
-                client.customerList()
+                print(json.dumps(client.customerList(), indent=2))
             if args.filter:
-                client.customerList(args.filter)
-             #   print(json.dumps(client.get_DEVICE(), indent=2))
+                print(json.dumps(client.customerList(args.filter), indent=2))
         quit()
 
     if args.type == 'customer':
 
-        if args.customerid:
+        if args.customerid_action == 'list':
             if not args.filter:
-                client.deviceList(args.customerid)
+                print(json.dumps(client.deviceList(args.customerid), indent=2))
             if args.filter:
-                client.deviceList(args.customerid, args.filter)
-                #print(json.dumps(client.get_DEVICE(), indent=2))
+                print(json.dumps(client.deviceList(args.customerid, args.filter), indent=2))
+
+        if args.customerid_action == 'activeissue':
+            if not args.filter:
+                print(json.dumps(client.activeissueslist(args.customerid), indent=2))
+            if args.filter:
+                print(json.dumps(client.activeissueslist(args.customerid, args.filter), indent=2))
+
         quit()
 
     if args.type == 'device':
 
         if args.deviceid:
             if not args.filter:
-                client.deviceGetStatus(args.deviceid)
+                print(json.dumps(client.deviceGetStatus(args.deviceid), indent=2))
             if args.filter:
-                client.deviceGetStatus(args.deviceid, args.filter)
-                #print(json.dumps(client.get_DEVICE(), indent=2))
+                print(json.dumps(client.deviceGetStatus(args.deviceid, args.filter), indent=2))
         quit()
 
     if args.type == 'task':
 
         if args.taskid:
             if args.taskid_action == 'pause':
-                client.taskPauseMonitoring(args.taskid)
-                #print(json.dumps(client.get_DEVICE(), indent=2))
+                print(client.taskPauseMonitoring(args.taskid))
 
             if args.taskid_action == 'resume':
-                client.taskResumeMonitoring(args.taskid)
-                #print(json.dumps(client.get_DEVICE(), indent=2))
+                print(client.taskResumeMonitoring(args.taskid))
 
 #        if not args.taskid:
             if not args.taskid_action:
                 print("not implemented, please use pause or resume")
-                #print(json.dumps(client.get_DEVICE(), indent=2))
 
         quit()
 

@@ -19,7 +19,11 @@ class NCentralClient(object):
     def customerList(self, filter_customer_name = None):
         #Returns list of customers
 
-        req = self.client.service.customerList(username=self.username, password=self.password)
+        try:
+            req = self.client.service.customerList(username=self.username, password=self.password)
+
+        except:
+            raise NCentralError("Incorrect username or password combo")
 
         result_entities = []
         for idx, customer in enumerate(req):
@@ -34,30 +38,52 @@ class NCentralClient(object):
                 if search(filter_customer_name, items['customer.customername']):
                     filter_result.append(items)
             if not filter_result:
-                print("A customer named:", filter_customer_name, "was not found" )
+                raise NCentralError("A customer named:", filter_customer_name, "was not found" )
             else:
-                print (filter_result)
+                return filter_result
         else:
-            print (result_entities)
+            return result_entities
 
         return
 
-    def activeissueslist(self, customerid):
+    def activeissueslist(self, customerid, filter_device_name = None):
 
         settings = {'key' : 'customerId', 'value' : customerid}
 
-        devices = self.client.service.activeIssuesList(username=self.username, password=self.password, settings=settings)
+        try:
+            req = self.client.service.activeIssuesList(username=self.username, password=self.password, settings=settings)
 
-        for device in devices:
-            print(device)
+        except:
+            raise NCentralError("Incorrect username or password combo")
 
-        return
+        result_entities = []
+        for idx, devices in enumerate(req):
+            result_entities_sub = {}
+            for device in devices.items:
+                result_entities_sub[device.key] = device.value
+            result_entities.append(result_entities_sub)
+
+        if filter_device_name:
+            filter_result = []
+            for items in result_entities:
+                if search(filter_device_name, items['activeissue.devicename']):
+                    filter_result.append(items)
+            if not filter_result:
+                raise NCentralError("A device named:", filter_device_name, "was not found" )
+            else:
+                return filter_result
+        else:
+            return result_entities
 
     def deviceList(self, customerid, filter_device_name = None):
         #Returns list of devices per customer id. Each device is an array upon itself with multiple identifiers.)
         settings = {'key' : 'customerId', 'value' : customerid}
 
-        req = self.client.service.deviceList(username=self.username, password=self.password, settings=settings)
+        try:
+            req = self.client.service.deviceList(username=self.username, password=self.password, settings=settings)
+
+        except:
+            raise NCentralError("Incorrect username or password combo")
 
         result_entities = []
         for idx, devices in enumerate(req):
@@ -72,19 +98,21 @@ class NCentralClient(object):
                 if search(filter_device_name, items['device.longname']):
                     filter_result.append(items)
             if not filter_result:
-                print("A device named:", filter_device_name, "was not found" )
+                raise NCentralError("A device named:", filter_device_name, "was not found" )
             else:
-                print (filter_result)
+                return filter_result
         else:
-            print (result_entities)
-
-        return
+            return result_entities
 
     def deviceGetStatus(self, deviceid = None, filter_task_name = None):
-        #returns tasks per device id. Each task is and array with multiple identifiers.
+        #returns tasks per device id. Each task is an array with multiple identifiers.
         settings = {'key' : 'deviceID', 'value' : deviceid}
 
-        req = self.client.service.deviceGetStatus(username=self.username, password=self.password, settings=settings)
+        try:
+            req = self.client.service.deviceGetStatus(username=self.username, password=self.password, settings=settings)
+
+        except:
+            raise NCentralError("Incorrect username or password combo")
 
         if deviceid:
             result_entities = []
@@ -95,10 +123,10 @@ class NCentralClient(object):
                 result_entities.append(result_entities_sub)
 
         if deviceid and not filter_task_name:
-            print(result_entities)
+            return result_entities
 
         if not deviceid:
-            print("Please supply device id")
+            raise NCentralError("Please supply device id")
 
         if filter_task_name and deviceid:
             filter_result = []
@@ -106,11 +134,9 @@ class NCentralClient(object):
                 if search(filter_task_name, items['devicestatus.modulename']):
                     filter_result.append(items)
             if not filter_result:
-                print("A task named:", filter_task_name, "was not found" )
+                raise NCentralError("A task named:", filter_task_name, "was not found" )
             else:
-                print (filter_result)
-
-        return
+                return filter_result
 
 ########################Set values#####################################################
 
@@ -118,21 +144,24 @@ class NCentralClient(object):
         #Paused monitor task. Can accept taskid as list
         task_id_list = [taskid]
 
-        req = self.client.service.taskPauseMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
+        try:
+            req = self.client.service.taskPauseMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
 
-        print(req)
-        
-        return
+        except:
+            raise NCentralError("Incorrect username or password combo")
+
+        return req
 
     def taskResumeMonitoring(self, taskid = None):
         #Resume paused monitor task. Can accept taskid as list
         task_id_list = [taskid]
 
-        req = self.client.service.taskResumeMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
+        try:
+            req = self.client.service.taskResumeMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
 
-        print(req)
-        
-        return
+        except:
+            raise NCentralError("Incorrect username or password combo")
 
+        return req
 
 ########################End set values#################################################
