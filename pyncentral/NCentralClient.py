@@ -104,7 +104,7 @@ class NCentralClient(object):
         else:
             return result_entities
 
-    def deviceGetStatus(self, deviceid = None, filter_task_name = None):
+    def deviceGetStatus(self, deviceid = None, filter_device_name = None):
         #returns tasks per device id. Each task is an array with multiple identifiers.
         settings = {'key' : 'deviceID', 'value' : deviceid}
 
@@ -122,21 +122,44 @@ class NCentralClient(object):
                     result_entities_sub[devicestatus.key] = devicestatus.value
                 result_entities.append(result_entities_sub)
 
-        if deviceid and not filter_task_name:
+        if deviceid and not filter_device_name:
             return result_entities
 
         if not deviceid:
             raise NCentralError("Please supply device id")
 
-        if filter_task_name and deviceid:
+        if filter_device_name and deviceid:
             filter_result = []
             for items in result_entities:
-                if search(filter_task_name, items['devicestatus.modulename']):
+                if search(filter_device_name, items['devicestatus.modulename']):
                     filter_result.append(items)
             if not filter_result:
-                raise NCentralError("A task named:", filter_task_name, "was not found" )
+                raise NCentralError("A task named:", filter_device_name, "was not found" )
             else:
                 return filter_result
+
+    def deviceGet(self, deviceid = None):
+        #retrieves the data for a user-specified list of devices.
+        settings = {'key' : 'deviceID', 'value' : deviceid}
+
+        if deviceid == None:
+            raise NCentralError("Please specify device id")
+
+        try:
+            req = self.client.service.deviceGet(username=self.username, password=self.password, settings=settings)
+
+        except:
+            raise NCentralError("Incorrect username or password combo")
+
+        result_entities = []
+        for idx, entities in enumerate(req):
+            result_entities_sub = {}
+            for devicestatus in entities.info:
+                result_entities_sub[devicestatus.key] = devicestatus.value
+            result_entities.append(result_entities_sub)
+
+        return result_entities
+
 
 ########################Set values#####################################################
 

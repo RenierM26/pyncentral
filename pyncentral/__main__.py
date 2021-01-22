@@ -38,7 +38,8 @@ def main():
 
     #DeviceID related functions
     subparsers_deviceid_action = parser_deviceid.add_subparsers(dest='deviceid_action')
-    parser_deviceid_action = subparsers_deviceid_action.add_parser('list', help='List devices under customer')
+    parser_deviceid_action = subparsers_deviceid_action.add_parser('list', help='List tasks under device')
+    parser_deviceid_action = subparsers_deviceid_action.add_parser('deviceinfo', help='Get device info')
     
     #Task related functions
     parser_taskid = subparsers.add_parser('task', help='task related actions')
@@ -98,11 +99,18 @@ def main():
 
     if args.type == 'device':
 
-        if args.deviceid:
+        if args.deviceid_action == 'list':
             if not args.filter:
                 print(json.dumps(client.deviceGetStatus(args.deviceid), indent=2))
             if args.filter:
                 print(json.dumps(client.deviceGetStatus(args.deviceid, args.filter), indent=2))
+
+        if args.deviceid_action == 'deviceinfo':
+            if not args.filter:
+                print(json.dumps(client.deviceGet(args.deviceid), indent=2))
+            if args.filter:
+                print(json.dumps(client.deviceGet(args.deviceid, args.filter), indent=2))
+
         quit()
 
     if args.type == 'task':
