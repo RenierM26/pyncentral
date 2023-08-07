@@ -160,6 +160,26 @@ class NCentralClient(object):
 
         return result_entities
 
+    def deviceAssetInfoExportDeviceWithSettings(self, deviceid = None):
+        #retrieves the data for a user-specified list of devices.
+        settings = {'key' : 'TargetByDeviceID', 'value' : [deviceid]}
+
+        if deviceid == None:
+            raise NCentralError("Please specify device id")
+
+        try:
+            req = self.client.service.deviceAssetInfoExportDeviceWithSettings(version="0.0",username=self.username, password=self.password, settings=settings)
+
+        except:
+            raise NCentralError("Incorrect username or password combo")
+        result_entities = []
+        for idx, entities in enumerate(req):
+            result_entities_sub = {}
+            for device in entities.items:
+                result_entities_sub[device.key] = device.value
+            result_entities.append(result_entities_sub)
+
+        return result_entities
 
 ########################Set values#####################################################
 
