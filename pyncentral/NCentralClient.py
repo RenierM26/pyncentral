@@ -1,32 +1,46 @@
-import json
-import logging
-import time
+"""pyncentral main module."""
+from __future__ import annotations
+
 from re import search
+from typing import Any
+
+import requests
 import zeep
-from zeep import helpers
 
-class NCentralError(Exception):
-    pass
+from .exceptions import HTTPError, InvalidURL, NCentralError
 
-class NCentralClient(object):
-    def __init__(self, username, password, url):
+
+class NCentralClient:
+    """NCentralClient class."""
+
+    def __init__(self, username, password, url) -> None:
+        """NCentralClient constructor."""
         self.username = username
         self.password = password
         self.api_soap = "/dms2/services2/ServerEI2?wsdl"
         self.api_base_url = "https://" + url
-        self.client = zeep.CachingClient(wsdl=self.api_base_url + self.api_soap)
-
-    def customerList(self, filter_customer_name = None):
-        #Returns list of customers
 
         try:
-            req = self.client.service.customerList(username=self.username, password=self.password)
+            self.client = zeep.CachingClient(wsdl=self.api_base_url + self.api_soap)
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except requests.exceptions.ConnectionError as err:
+            raise InvalidURL("A Invalid URL or Proxy error occurred") from err
+        except requests.exceptions.HTTPError as err:
+            raise HTTPError from err
+
+    def customerList(self, filter_customer_name=None) -> list:
+        """Return list of customers. Each customer is an array upon itself with multiple identifiers."""
+
+        try:
+            req = self.client.service.customerList(
+                username=self.username, password=self.password
+            )
+
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         result_entities = []
-        for idx, customer in enumerate(req):
+        for _idx, customer in enumerate(req):
             result_entities_sub = {}
             for item in customer.items:
                 result_entities_sub[item.key] = item.value
@@ -35,29 +49,30 @@ class NCentralClient(object):
         if filter_customer_name:
             filter_result = []
             for items in result_entities:
-                if search(filter_customer_name, items['customer.customername']):
+                if search(filter_customer_name, items["customer.customername"]):
                     filter_result.append(items)
             if not filter_result:
-                raise NCentralError("A customer named:", filter_customer_name, "was not found" )
-            else:
-                return filter_result
-        else:
-            return result_entities
+                raise NCentralError(
+                    "A customer named:", filter_customer_name, "was not found"
+                )
+            return filter_result
 
-        return
+        return result_entities
 
-    def activeissueslist(self, customerid, filter_device_name = None):
-
-        settings = {'key' : 'customerId', 'value' : customerid}
+    def activeissueslist(self, customerid, filter_device_name=None) -> list:
+        """Return list of active issues per customer id. Each issue is an array upon itself with multiple identifiers."""
+        settings = {"key": "customerId", "value": customerid}
 
         try:
-            req = self.client.service.activeIssuesList(username=self.username, password=self.password, settings=settings)
+            req = self.client.service.activeIssuesList(
+                username=self.username, password=self.password, settings=settings
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         result_entities = []
-        for idx, devices in enumerate(req):
+        for _idx, devices in enumerate(req):
             result_entities_sub = {}
             for device in devices.items:
                 result_entities_sub[device.key] = device.value
@@ -66,27 +81,31 @@ class NCentralClient(object):
         if filter_device_name:
             filter_result = []
             for items in result_entities:
-                if search(filter_device_name, items['activeissue.devicename']):
+                if search(filter_device_name, items["activeissue.devicename"]):
                     filter_result.append(items)
             if not filter_result:
-                raise NCentralError("A device named:", filter_device_name, "was not found" )
-            else:
-                return filter_result
-        else:
-            return result_entities
+                raise NCentralError(
+                    "A device named:", filter_device_name, "was not found"
+                )
 
-    def deviceList(self, customerid, filter_device_name = None):
-        #Returns list of devices per customer id. Each device is an array upon itself with multiple identifiers.)
-        settings = {'key' : 'customerId', 'value' : customerid}
+            return filter_result
+
+        return result_entities
+
+    def deviceList(self, customerid, filter_device_name=None) -> list:
+        """Return list of devices per customer id. Each device is an array upon itself with multiple identifiers."""
+        settings = {"key": "customerId", "value": customerid}
 
         try:
-            req = self.client.service.deviceList(username=self.username, password=self.password, settings=settings)
+            req = self.client.service.deviceList(
+                username=self.username, password=self.password, settings=settings
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         result_entities = []
-        for idx, devices in enumerate(req):
+        for _idx, devices in enumerate(req):
             result_entities_sub = {}
             for device in devices.items:
                 result_entities_sub[device.key] = device.value
@@ -95,28 +114,32 @@ class NCentralClient(object):
         if filter_device_name:
             filter_result = []
             for items in result_entities:
-                if search(filter_device_name, items['device.longname']):
+                if search(filter_device_name, items["device.longname"]):
                     filter_result.append(items)
             if not filter_result:
-                raise NCentralError("A device named:", filter_device_name, "was not found" )
-            else:
-                return filter_result
-        else:
-            return result_entities
+                raise NCentralError(
+                    "A device named:", filter_device_name, "was not found"
+                )
 
-    def deviceGetStatus(self, deviceid = None, filter_device_name = None):
-        #returns tasks per device id. Each task is an array with multiple identifiers.
-        settings = {'key' : 'deviceID', 'value' : deviceid}
+            return filter_result
+
+        return result_entities
+
+    def deviceGetStatus(self, deviceid=None, filter_device_name=None) -> list:
+        """Return tasks per device id. Each task is an array with multiple identifiers."""
+        settings = {"key": "deviceID", "value": deviceid}
 
         try:
-            req = self.client.service.deviceGetStatus(username=self.username, password=self.password, settings=settings)
+            req = self.client.service.deviceGetStatus(
+                username=self.username, password=self.password, settings=settings
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         if deviceid:
             result_entities = []
-            for idx, entities in enumerate(req):
+            for _idx, entities in enumerate(req):
                 result_entities_sub = {}
                 for devicestatus in entities.items:
                     result_entities_sub[devicestatus.key] = devicestatus.value
@@ -131,28 +154,32 @@ class NCentralClient(object):
         if filter_device_name and deviceid:
             filter_result = []
             for items in result_entities:
-                if search(filter_device_name, items['devicestatus.modulename']):
+                if search(filter_device_name, items["devicestatus.modulename"]):
                     filter_result.append(items)
             if not filter_result:
-                raise NCentralError("A task named:", filter_device_name, "was not found" )
-            else:
-                return filter_result
+                raise NCentralError(
+                    "A task named:", filter_device_name, "was not found"
+                )
 
-    def deviceGet(self, deviceid = None):
-        #retrieves the data for a user-specified list of devices.
-        settings = {'key' : 'deviceID', 'value' : deviceid}
+            return filter_result
 
-        if deviceid == None:
+    def deviceGet(self, deviceid=None) -> list:
+        """Retrieve the data for a user-specified list of devices."""
+        settings = {"key": "deviceID", "value": deviceid}
+
+        if deviceid is None:
             raise NCentralError("Please specify device id")
 
         try:
-            req = self.client.service.deviceGet(username=self.username, password=self.password, settings=settings)
+            req = self.client.service.deviceGet(
+                username=self.username, password=self.password, settings=settings
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         result_entities = []
-        for idx, entities in enumerate(req):
+        for _idx, entities in enumerate(req):
             result_entities_sub = {}
             for devicestatus in entities.info:
                 result_entities_sub[devicestatus.key] = devicestatus.value
@@ -160,20 +187,26 @@ class NCentralClient(object):
 
         return result_entities
 
-    def deviceAssetInfoExportDeviceWithSettings(self, deviceid = None):
-        #retrieves the data for a user-specified list of devices.
-        settings = {'key' : 'TargetByDeviceID', 'value' : [deviceid]}
+    def deviceAssetInfoExportDeviceWithSettings(self, deviceid=None) -> list:
+        """Retrieve the data for a user-specified list of devices."""
+        settings = {"key": "TargetByDeviceID", "value": [deviceid]}
 
-        if deviceid == None:
+        if deviceid is None:
             raise NCentralError("Please specify device id")
 
         try:
-            req = self.client.service.deviceAssetInfoExportDeviceWithSettings(version="0.0",username=self.username, password=self.password, settings=settings)
+            req = self.client.service.deviceAssetInfoExportDeviceWithSettings(
+                version="0.0",
+                username=self.username,
+                password=self.password,
+                settings=settings,
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
+
         result_entities = []
-        for idx, entities in enumerate(req):
+        for _idx, entities in enumerate(req):
             result_entities_sub = {}
             for device in entities.items:
                 result_entities_sub[device.key] = device.value
@@ -181,30 +214,34 @@ class NCentralClient(object):
 
         return result_entities
 
-########################Set values#####################################################
+    # Set values.
 
-    def taskPauseMonitoring(self, taskid = None):
-        #Paused monitor task. Can accept taskid as list
+    def taskPauseMonitoring(self, taskid=None) -> Any:
+        """Paused monitor task. Can accept taskid as list."""
         task_id_list = [taskid]
 
         try:
-            req = self.client.service.taskPauseMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
+            req = self.client.service.taskPauseMonitoring(
+                username=self.username, password=self.password, taskIDList=task_id_list
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         return req
 
-    def taskResumeMonitoring(self, taskid = None):
-        #Resume paused monitor task. Can accept taskid as list
+    def taskResumeMonitoring(self, taskid=None) -> Any:
+        """Resume paused monitor task. Can accept taskid as list."""
         task_id_list = [taskid]
 
         try:
-            req = self.client.service.taskResumeMonitoring(username=self.username, password=self.password, taskIDList=task_id_list)
+            req = self.client.service.taskResumeMonitoring(
+                username=self.username, password=self.password, taskIDList=task_id_list
+            )
 
-        except:
-            raise NCentralError("Incorrect username or password combo")
+        except zeep.exceptions.Fault as err:
+            raise NCentralError("Incorrect username or password combo") from err
 
         return req
 
-########################End set values#################################################
+    # End set values.

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='pyncentral',
-    version="0.0.0.2",
+    version="0.0.0.3",
     license='GPL-3.0 License',
     author='Renier Moorcroft',
     author_email='RenierM26@users.github.com',
