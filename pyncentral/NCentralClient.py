@@ -13,7 +13,7 @@ from .exceptions import HTTPError, InvalidURL, NCentralError
 class NCentralClient:
     """NCentralClient class."""
 
-    def __init__(self, username, password, url) -> None:
+    def __init__(self, username: str, password: str, url: str) -> None:
         """NCentralClient constructor."""
         self.username = username
         self.password = password
@@ -28,7 +28,7 @@ class NCentralClient:
         except requests.exceptions.HTTPError as err:
             raise HTTPError from err
 
-    def customerList(self, filter_customer_name=None) -> list:
+    def customerList(self, filter_customer_name: str | None = None) -> list:
         """Return list of customers. Each customer is an array upon itself with multiple identifiers."""
 
         try:
@@ -59,7 +59,9 @@ class NCentralClient:
 
         return result_entities
 
-    def activeissueslist(self, customerid, filter_device_name=None) -> list:
+    def activeissueslist(
+        self, customerid: int, filter_device_name: str | None = None
+    ) -> list:
         """Return list of active issues per customer id. Each issue is an array upon itself with multiple identifiers."""
         settings = {"key": "customerId", "value": customerid}
 
@@ -92,7 +94,9 @@ class NCentralClient:
 
         return result_entities
 
-    def deviceList(self, customerid, filter_device_name=None) -> list:
+    def deviceList(
+        self, customerid: int, filter_device_name: str | None = None
+    ) -> list:
         """Return list of devices per customer id. Each device is an array upon itself with multiple identifiers."""
         settings = {"key": "customerId", "value": customerid}
 
@@ -125,7 +129,9 @@ class NCentralClient:
 
         return result_entities
 
-    def deviceGetStatus(self, deviceid=None, filter_device_name=None) -> list:
+    def deviceGetStatus(
+        self, deviceid: int | None = None, filter_device_name: str | None = None
+    ) -> list:
         """Return tasks per device id. Each task is an array with multiple identifiers."""
         settings = {"key": "deviceID", "value": deviceid}
 
@@ -163,7 +169,9 @@ class NCentralClient:
 
             return filter_result
 
-    def deviceGet(self, deviceid=None) -> list:
+        return []
+
+    def deviceGet(self, deviceid: int | None = None) -> list:
         """Retrieve the data for a user-specified list of devices."""
         settings = {"key": "deviceID", "value": deviceid}
 
@@ -187,7 +195,9 @@ class NCentralClient:
 
         return result_entities
 
-    def deviceAssetInfoExportDeviceWithSettings(self, deviceid=None) -> list:
+    def deviceAssetInfoExportDeviceWithSettings(
+        self, deviceid: int | None = None
+    ) -> list:
         """Retrieve the data for a user-specified list of devices."""
         settings = {"key": "TargetByDeviceID", "value": [deviceid]}
 
@@ -216,7 +226,7 @@ class NCentralClient:
 
     # Set values.
 
-    def taskPauseMonitoring(self, taskid=None) -> Any:
+    def taskPauseMonitoring(self, taskid: int | None = None) -> Any:
         """Paused monitor task. Can accept taskid as list."""
         task_id_list = [taskid]
 
@@ -230,7 +240,7 @@ class NCentralClient:
 
         return req
 
-    def taskResumeMonitoring(self, taskid=None) -> Any:
+    def taskResumeMonitoring(self, taskid: int | None = None) -> Any:
         """Resume paused monitor task. Can accept taskid as list."""
         task_id_list = [taskid]
 

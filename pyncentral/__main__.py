@@ -7,7 +7,7 @@ import sys
 from .NCentralClient import NCentralClient
 
 
-def main():
+def main() -> None:
     """Start pyncentral cli."""
     parser = argparse.ArgumentParser(prog="pyncentral")
     parser.add_argument("-username", required=True, help="NCentral username")
@@ -140,12 +140,7 @@ def main():
                 )
 
         if args.deviceid_action == "deviceinfo":
-            if not args.filter:
-                print(json.dumps(client.deviceGet(args.deviceid), indent=2))
-            if args.filter:
-                print(
-                    json.dumps(client.deviceGet(args.deviceid, args.filter), indent=2)
-                )
+            print(json.dumps(client.deviceGet(args.deviceid), indent=2))
 
         sys.exit()
 
