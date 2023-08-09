@@ -1,29 +1,36 @@
-# pyncentral
-Python API for Solarwinds NCentral using SOAP.
+[![Donate](https://img.shields.io/badge/donate-Coffee-yellow.svg)](https://www.buymeacoffee.com/renierm)
+![Upload Python Package](https://github.com/RenierM26/pyUbersolar/workflows/Upload%20Python%20Package/badge.svg)
 
-1) install using pi install pyncentral
+# pyncentral - Python API for N-Able NCentral using SOAP.
 
-Usage:
+# Install
+
+pip install pyncentral
+
+# Usage:
 
 Actions are based on 4 tasks:
 
-pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" all -h
-pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" customer -h
-pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" device -h
-pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" task -h
+```pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" all -h```
+
+```pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" customer -h```
+
+```pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" device -h```
+
+```pyncentral -username "USERNAME" -p "PASSWORD" -url "www.myncentralserver.local" task -h```
 
 
-Please use -h switch for more info 
+Please use -h switch for help
 
 
-Ncentral genral refereneces:
+# NCentral api notes:
 
 1) Each customer or site has a CustomerID
 2) Each device has a unique id
 3) Each monitored item on a device is called a task and also has a unique id (in API)
 
 
-What is implemented:
+# What is implemented:
 
 1) You can pause/enable monitoring of spesific items ---- Yes, that means a website or service on a server for example.
 2) You list customers.
